@@ -6,6 +6,7 @@ set -eux
 IMG_OWNER=${1:-cilium}
 IMG_TAG=${2:-latest}
 CILIUM_EXEC="docker exec -t lb-node docker exec -t cilium-lb"
+NAT_PREFIX="64:ff9b::"
 
 function cilium_install {
     docker exec -t lb-node docker rm -f cilium-lb || true
@@ -301,6 +302,52 @@ done
 ${CILIUM_EXEC} cilium service delete 1
 ${CILIUM_EXEC} cilium service delete 2
 nsenter -t $CONTROL_PLANE_PID -n ip neigh del ${WORKER_IP4} dev eth0
+
+# NAT 6->4 test suite (stateful gateway)
+########################################
+
+NAT_GW_IP=$(docker exec -t lb-node ip -o -6 a s eth0 | awk '{print $4}' | cut -d/ -f1 | head -n1)
+ip -6 r a "${NAT_PREFIX}/96" via "$NAT_GW_IP"
+
+LIST=$(${CILIUM_EXEC} cilium bpf lb list | tail +2)
+if [ ! -z "$LIST" ]; then
+	echo "Service table is not empty!"
+	${CILIUM_EXEC} cilium service list
+	exit 1
+fi
+
+# Install Cilium as standalone gateway: tc/Random/SNAT/Gateway
+cilium_install \
+    --bpf-lb-algorithm=random \
+    --bpf-lb-acceleration=disabled \
+    --bpf-lb-mode=snat \
+    --enable-nat46x64-gateway=true
+
+# Issue 10 requests to WORKER_IP4 embedded in NAT_PREFIX
+for i in $(seq 1 10); do
+    curl -o /dev/null "[${NAT_PREFIX}${WORKER_IP4}]:80"
+done
+
+# Install Cilium as standalone gateway: XDP/Maglev/SNAT/Gateway
+cilium_install \
+    --bpf-lb-algorithm=maglev \
+    --bpf-lb-acceleration=native \
+    --bpf-lb-mode=snat \
+    --enable-nat46x64-gateway=true
+
+# Check that it went up fine. Note that we currently cannot do runtime test
+# as veth + XDP is broken when switching protocols. Needs something bare metal.
+
+# Restore back to: tc/Random/SNAT/Gateway
+cilium_install \
+    --bpf-lb-algorithm=random \
+    --bpf-lb-acceleration=disabled \
+    --bpf-lb-mode=snat \
+    --enable-nat46x64-gateway=true
+
+for i in $(seq 1 10); do
+    curl -o /dev/null "[${NAT_PREFIX}${WORKER_IP4}]:80"
+done
 
 # Misc compilation tests
 ########################
