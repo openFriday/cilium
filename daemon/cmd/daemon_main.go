@@ -1135,6 +1135,7 @@ func initDaemonConfig() {
 		lbmap.SizeofSockRevNat6Key+lbmap.SizeofSockRevNat6Value)
 
 	option.Config.Populate(Vp)
+	option.Config.IPAM = ipamOption.IPAMKubernetes
 }
 
 func initEnv() {
