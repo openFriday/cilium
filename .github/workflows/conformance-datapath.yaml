@@ -176,6 +176,9 @@ jobs:
             tunnel: 'disabled'
             encryption: 'wireguard'
             lb-mode: 'dsr'
+            # to test BPF masquerade until
+            # https://github.com/cilium/cilium/issues/14350 has been resolved
+            ipv6: 'false'
 
     timeout-minutes: 60
     steps:
@@ -212,6 +215,7 @@ jobs:
           TUNNEL="--helm-set-string=tunnel=vxlan"
           if [ "${{ matrix.tunnel }}" == "disabled" ]; then
             TUNNEL="--helm-set-string=tunnel=disabled --helm-set-string=autoDirectNodeRoutes=true --helm-set-string=ipv4NativeRoutingCIDR=10.244.0.0/16"
+            TUNNEL="${TUNNEL} --helm-set-string=ipv6NativeRoutingCIDR=fd00:10:244::/56"
           fi
           LB_MODE=""
           if [ "${{ matrix.lb-mode }}" != "" ]; then
@@ -221,8 +225,12 @@ jobs:
           if [ "${{ matrix.endpoint-routes }}" == "true" ]; then
             ENDPOINT_ROUTES="--helm-set-string=endpointRoutes.enabled=true"
           fi
-          CONFIG="${CILIUM_INSTALL_DEFAULTS} ${TUNNEL} ${LB_MODE} ${ENDPOINT_ROUTES}"
+          IPV6=""
+          if [ "${{ matrix.ipv6 }}" != "false" ]; then
+            IPV6="--helm-set=ipv6.enabled=true --helm-set=bpf.masquerade=false"
+          fi
 
+          CONFIG="${CILIUM_INSTALL_DEFAULTS} ${TUNNEL} ${LB_MODE} ${ENDPOINT_ROUTES} ${IPV6}"
           echo "cilium_install_defaults=${CONFIG}" >> $GITHUB_OUTPUT
 
       - name: Set commit status to pending
@@ -274,7 +282,7 @@ jobs:
           provision: 'false'
           cmd: |
             cd /host/
-            ./contrib/scripts/kind.sh "" 3 "" "" "${{ matrix.kube-proxy }}"
+            ./contrib/scripts/kind.sh "" 3 "" "" "${{ matrix.kube-proxy }}" "dual"
             ./cilium-cli install ${{ steps.vars.outputs.cilium_install_defaults }}
 
             ./cilium-cli status --wait
@@ -291,7 +299,7 @@ jobs:
           provision: 'false'
           cmd: |
             cd /host/
-            ./contrib/scripts/kind.sh "" 3 "" "" "${{ matrix.kube-proxy }}"
+            ./contrib/scripts/kind.sh "" 3 "" "" "${{ matrix.kube-proxy }}" "dual"
             ./cilium-cli install ${{ steps.vars.outputs.cilium_install_defaults }} \
               --encryption=${{ matrix.encryption }}
 
