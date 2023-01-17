@@ -84,5 +84,19 @@ static __always_inline union macaddr *neigh_lookup_ip4(const __be32 *addr)
 	return map_lookup_elem(&NODEPORT_NEIGH4, addr);
 }
 #endif /* ENABLE_IPV4 */
+#else /* !ENABLE_NODEPORT */
+#ifdef ENABLE_IPV6
+static __always_inline union macaddr *neigh_lookup_ip6(const union v6addr *addr)
+{
+	return NULL;
+}
+#endif /* ENABLE_IPV6 */
+
+#ifdef ENABLE_IPV4
+static __always_inline union macaddr *neigh_lookup_ip4(const __be32 *addr)
+{
+	return NULL;
+}
+#endif /* ENABLE_IPV4 */
 #endif /* ENABLE_NODEPORT */
 #endif /* __LIB_NEIGH_H_ */
