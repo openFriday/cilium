@@ -168,7 +168,7 @@ jobs:
             tunnel: 'disabled'
             encryption: 'wireguard'
             lb-mode: 'snat'
-            ipv6: 'false'
+            #ipv6: 'false'
 
           - name: '7'
             kernel: 'bpf-next-main'
@@ -179,7 +179,7 @@ jobs:
             lb-mode: 'snat'
             # to test BPF masquerade until
             # https://github.com/cilium/cilium/issues/14350 has been resolved
-            ipv6: 'false'
+            #ipv6: 'false'
 
     timeout-minutes: 60
     steps:
