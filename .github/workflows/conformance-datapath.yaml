@@ -174,9 +174,9 @@ jobs:
             kernel: 'bpf-next-main'
             kube-proxy: 'none'
             kpr: 'strict'
-            tunnel: 'disabled'
+            tunnel: 'vxlan'
             encryption: 'wireguard'
-            lb-mode: 'dsr'
+            lb-mode: 'snat'
             # to test BPF masquerade until
             # https://github.com/cilium/cilium/issues/14350 has been resolved
             ipv6: 'false'
