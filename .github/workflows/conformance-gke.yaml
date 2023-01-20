@@ -20,7 +20,7 @@ on:
   #   will disappear from the PR checks: please provide a direct link to the
   #   successful workflow run (can be found from Actions tab) in a comment.
   #
-  # pull_request: {}
+  pull_request: {}
   ###
 
 # By specifying the access of one of the scopes, all of those that are not
@@ -318,7 +318,8 @@ jobs:
 
       - name: Run connectivity test
         run: |
-          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --force-deploy
+          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" --force-deploy
+        # disable "pod-to.*node" test until the issue https://github.com/cilium/cilium/issues/22808 resolves
 
       - name: Clean up Cilium
         run: |
@@ -343,7 +344,8 @@ jobs:
 
       - name: Run connectivity test
         run: |
-          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --force-deploy
+          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" --force-deploy
+        # disable "pod-to.*node" test until the issue https://github.com/cilium/cilium/issues/22808 resolves
 
       - name: Post-test information gathering
         if: ${{ !success() }}
