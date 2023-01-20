@@ -314,7 +314,7 @@ jobs:
 
       - name: Run connectivity test
         run: |
-          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" --force-deploy
+          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" -v --force-deploy
         # disable "pod-to.*node" test until the issue https://github.com/cilium/cilium/issues/22808 resolves
 
       - name: Clean up Cilium
@@ -340,7 +340,7 @@ jobs:
 
       - name: Run connectivity test
         run: |
-          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" --force-deploy
+          cilium connectivity test ${{ steps.vars.outputs.connectivity_test_defaults }} --test "!pod-to.*node" -v --force-deploy
         # disable "pod-to.*node" test until the issue https://github.com/cilium/cilium/issues/22808 resolves
 
       - name: Post-test information gathering
