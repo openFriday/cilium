@@ -359,9 +359,9 @@ func (m *manager) NodeUpdated(n nodeTypes.Node) {
 	resource := ipcacheTypes.NewResourceID(ipcacheTypes.ResourceKindNode, "", n.Name)
 
 	nodeIdentityOverride := false
-	nodeIdentityLabels := labels.LabelRemoteNode
+	nodeIdentityLabels := labels.NewFrom(labels.LabelRemoteNode)
 	if n.IsLocal() {
-		nodeIdentityLabels = labels.LabelHost
+		nodeIdentityLabels = labels.NewFrom(labels.LabelHost)
 	} else if !identity.NumericIdentity(n.NodeIdentity).IsReservedIdentity() {
 		nodeIdentityLabels = labels.Map2Labels(n.Labels, "") // TODO is this correct?
 		nodeIdentityOverride = true
