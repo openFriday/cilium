@@ -105,7 +105,14 @@ func (i *ipcacheMock) Delete(ip string, source source.Source) bool {
 	return false
 }
 
-func (i *ipcacheMock) UpsertLabels(netip.Prefix, labels.Labels, source.Source, ipcacheTypes.ResourceID) {
+func (i *ipcacheMock) UpsertMetadata(prefix netip.Prefix, src source.Source, resource ipcacheTypes.ResourceID, aux ...ipcache.IPMetadata) {
+	i.Upsert(prefix.String(), nil, 0, nil, ipcache.Identity{})
+}
+func (i *ipcacheMock) OverrideIdentity(prefix netip.Prefix, identityLabels labels.Labels, src source.Source, resource ipcacheTypes.ResourceID) {
+	i.UpsertMetadata(prefix, src, resource)
+}
+func (i *ipcacheMock) RemoveAllMetadata(prefix netip.Prefix, resource ipcacheTypes.ResourceID) {
+	i.Delete(prefix.String(), source.CustomResource)
 }
 
 type signalNodeHandler struct {
