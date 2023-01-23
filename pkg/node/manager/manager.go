@@ -336,7 +336,13 @@ func (m *manager) legacyNodeIpBehavior() bool {
 }
 
 func nodeIdenitityLabels(n nodeTypes.Node) (nodeLabels labels.Labels, hasOverride bool) {
-
+	nodeLabels = labels.NewFrom(labels.LabelRemoteNode)
+	if n.IsLocal() {
+		nodeLabels = labels.NewFrom(labels.LabelHost)
+	} else if !identity.NumericIdentity(n.NodeIdentity).IsReservedIdentity() {
+		nodeLabels = labels.Map2Labels(n.Labels, "") // TODO is this correct?
+		hasOverride = true
+	}
 	return nodeLabels, hasOverride
 }
 
@@ -357,15 +363,7 @@ func (m *manager) NodeUpdated(n nodeTypes.Node) {
 	}
 
 	resource := ipcacheTypes.NewResourceID(ipcacheTypes.ResourceKindNode, "", n.Name)
-
-	nodeIdentityOverride := false
-	nodeIdentityLabels := labels.NewFrom(labels.LabelRemoteNode)
-	if n.IsLocal() {
-		nodeIdentityLabels = labels.NewFrom(labels.LabelHost)
-	} else if !identity.NumericIdentity(n.NodeIdentity).IsReservedIdentity() {
-		nodeIdentityLabels = labels.Map2Labels(n.Labels, "") // TODO is this correct?
-		nodeIdentityOverride = true
-	}
+	nodeLabels, nodeIdentityOverride := nodeIdenitityLabels(n)
 
 	var nodeIPsAdded, healthIPsAdded, ingressIPsAdded []netip.Prefix
 
@@ -413,11 +411,11 @@ func (m *manager) NodeUpdated(n nodeTypes.Node) {
 		}
 
 		m.ipcache.UpsertMetadata(prefix, n.Source, resource,
-			nodeIdentityLabels,
+			nodeLabels,
 			ipcacheTypes.TunnelPeer(tunnelIP),
 			ipcacheTypes.EncryptKey(key))
 		if nodeIdentityOverride {
-			m.ipcache.OverrideIdentity(prefix, nodeIdentityLabels, n.Source, resource)
+			m.ipcache.OverrideIdentity(prefix, nodeLabels, n.Source, resource)
 		}
 
 		nodeIPsAdded = append(nodeIPsAdded, prefix)
