@@ -1045,7 +1045,15 @@ hubble:
         maxUnavailable: 1
 
     # -- hubble-relay security context
-    securityContext: {}
+    securityContext:
+      fsGroup: 65532
+      # readOnlyRootFilesystem: true
+      runAsNonRoot: true
+      runAsUser: 65532
+      runAsGroup: 65532
+      capabilities:
+        drop:
+        - ALL
 
     # -- hubble-relay service configuration.
     service:

@@ -298,7 +298,7 @@ contributors across the globe, there is almost always someone available to help.
 | hubble.relay.resources | object | `{}` | Specifies the resources for the hubble-relay pods |
 | hubble.relay.retryTimeout | string | `nil` | Backoff duration to retry connecting to the local hubble instance in case of failure (e.g. "30s"). |
 | hubble.relay.rollOutPods | bool | `false` | Roll out Hubble Relay pods automatically when configmap is updated. |
-| hubble.relay.securityContext | object | `{}` | hubble-relay security context |
+| hubble.relay.securityContext | object | `{"capabilities":{"drop":["ALL"]},"fsGroup":65532,"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}` | hubble-relay security context |
 | hubble.relay.service | object | `{"nodePort":31234,"type":"ClusterIP"}` | hubble-relay service configuration. |
 | hubble.relay.service.nodePort | int | `31234` | - The port to use when the service type is set to NodePort. |
 | hubble.relay.service.type | string | `"ClusterIP"` | - The type of service used for Hubble Relay access, either ClusterIP or NodePort. |
