@@ -64,6 +64,7 @@ func TestInjectLabels(t *testing.T) {
 	IPIdentityCache.metadata.remove(inClusterPrefix, "kube-uid", overrideIdentity(false), labels.LabelKubeAPIServer)
 	remaining, err = IPIdentityCache.InjectLabels(ctx, []netip.Prefix{inClusterPrefix})
 	assert.NoError(t, err)
+	assert.Len(t, remaining, 0)
 	assert.Len(t, IPIdentityCache.metadata.m, 1)
 
 	// Assert that an upsert for reserved:health label results in only the
