@@ -9,12 +9,9 @@ import (
 	"net/netip"
 	"time"
 
-	"github.com/cilium/cilium/pkg/logging/logfields"
-	"github.com/sirupsen/logrus"
-
-	"github.com/prometheus/client_golang/prometheus"
-
 	"github.com/cilium/workerpool"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/sirupsen/logrus"
 
 	"github.com/cilium/cilium/pkg/backoff"
 	"github.com/cilium/cilium/pkg/controller"
@@ -28,6 +25,7 @@ import (
 	ipcacheTypes "github.com/cilium/cilium/pkg/ipcache/types"
 	"github.com/cilium/cilium/pkg/labels"
 	"github.com/cilium/cilium/pkg/lock"
+	"github.com/cilium/cilium/pkg/logging/logfields"
 	"github.com/cilium/cilium/pkg/metrics"
 	"github.com/cilium/cilium/pkg/node/addressing"
 	nodeTypes "github.com/cilium/cilium/pkg/node/types"
